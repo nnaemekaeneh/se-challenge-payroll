@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>My Website</title>
+    <link rel="stylesheet" type="text/css" href=""/>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+  </head>
+  <style> 
+    #error {
+      display: none;
+      width: 200px;
+      height: 100px;
+      align-items: center;
+      justify-content: center;
+      background-color: red;
+    }
+    #success {
+      display: none;
+      width: 200px;
+      height: 100px;
+      align-items: center;
+      justify-content: center;
+      background-color: green;
+    }
+    </style>
+  <body>
+    <main>
+      <h1>Welcome to Payroll Report</h1>
+      <h3>Upload time report CSV file</h3>
+      <div id="error">
+        <h5>Failed to upload - Method not allowed</h5>
+      </div>
+      <form id="form" action={% url 'payroll' %} enctype="multipart/formdata" method="post">
+        {% csrf_token %}
+        <input type="file" id="file" name="csvFile" />
+        <button style="margin-top: 10px" type="submit" onClick="submitCSVFile()">
+          Submit
+        </button>
+      </form>
+      <div id="success">
+        <h5>Success - CSV file uploaded successfully</h5>
+      </div>
+    </main>
+    <script>
+      function submitCSVFile() {
+        var csvForm = document.getElementById('form');
+        var urlCSV = csvForm.getAttribute('action');
+        var error = document.getElementById('error');
+        var success = document.getElementById('success');
+        csvForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          var formData = new FormData(csvForm);
+          console.log("file", formData.get('csvFile'))
+          console.log("formData", formData)
+          fetch(urlCSV, 
+          {
+            method: "POST",
+            body: formData
+          })
+          .then((res) => {
+            if(res.status === 405) {
+              error.style.display = 'flex';
+            } else {
+              success.style.display = 'flex'
+            }
+          })
+          .catch((e) => {
+            console.log(e)
+            error.style.display = 'flex';
+          })
+        });
+      }
+      console.log("Here");
+    </script>
+  </body>
+</html>
