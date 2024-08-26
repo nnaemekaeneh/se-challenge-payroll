@@ -31,15 +31,16 @@ class PayrollReport(BaseView):
     template_name = "payroll_report.html"
 
     def get(self, request, *args, **kwargs):
-
+        
         employee_reports = self.get_employee_report()
 
-        data = {"payrollReport": employee_reports}
+
+        data = {"payrollReport": employee_reports }
 
         print(data)
 
-        return Response(data=data)
-
+        return Response()
+    
     def post(self, request, *args, **kwargs):
         GET = request.data
         status = HTTP_405_METHOD_NOT_ALLOWED
@@ -86,95 +87,65 @@ class PayrollReport(BaseView):
             second_half_start = month["second_half"]["start_date"]
             second_half_end = month["second_half"]["end_date"]
 
-            first_half_report = (
+            month_reports = (
                 EmployeePayReport.objects.filter(
-                    work_date__range=[first_half_start, first_half_end]
+                    work_date__range=[first_half_start, second_half_end]
                 )
-                .order_by("employee")
+                .order_by("employee", "work_date")
                 .values("employee", "hours_worked", "work_date", "job_group")
             )
+            employee_ids = month_reports.values_list("employee", flat=True).distinct(
+                "employee"
+            )
 
-            second_half_report = (
-                EmployeePayReport.objects.filter(
-                    work_date__range=[second_half_start, second_half_end]
+            for id in employee_ids:
+                employee = EmployeePayReport.objects.filter(employee=id).first()
+                first_half_data = month_reports.filter(
+                    employee=id,
+                    work_date__range=[first_half_start, first_half_end],
                 )
-                .order_by("employee")
-                .values("employee", "hours_worked", "work_date", "job_group")
-            )
+                first_half_report = self.parse_report(
+                    first_half_start, first_half_end, employee, first_half_data
+                )
+                if first_half_report:
+                    employeeReports.append(first_half_report)
 
-            first_half_report = self.parse_report(
-                first_half_start, first_half_end, first_half_report
-            )
-            union_set = chain(first_half_report, second_half_report)
-            print("UNON: ", union_set.objects.all())
+                second_half_data = month_reports.filter(
+                    employee=id,
+                    work_date__range=[second_half_start, second_half_end],
+                )
+                second_half_report = self.parse_report(
+                    second_half_start, second_half_end, employee, second_half_data
+                )
+                if second_half_report:
+                    employeeReports.append(second_half_report)
 
-            if first_half_report:
-                employeeReports.extend(first_half_report)
-
-
-            second_half_report = self.parse_report(
-                second_half_start, second_half_end, second_half_report
-            )
-
-            print("second_half_report", second_half_report)
-
-            if second_half_report:
-                employeeReports.extend(second_half_report)
-
-        data = {"employeeReports": employeeReports}
+        data = { "employeeReports": employeeReports}
 
         return data
 
-    def parse_report(self, start_date, end_date, payroll_data):
-
-        employeeReports = []
-        employee_ids = payroll_data.values_list("employee", flat=True).distinct(
-            "employee"
-        )
-
-        for employee_id in employee_ids:
-            employee_pay_roll = EmployeePayReport.objects.filter(
-                employee=employee_id
-            ).first()
-
-            employee_stats = {
-                "employeeId": employee_id,
-            }
-            payPeriod = {
+    def parse_report(self, start_date, end_date, employee, payroll_data):
+        employee_stats = {
+            "employeeId": employee.employee,
+            "payPeriod": {
                 "startDate": start_date,
                 "endDate": end_date,
-            }
+            },
+        }
 
-            if employee_pay_roll.job_group == GROUP_A:
+        total_hours = payroll_data.aggregate(Sum("hours_worked"))
+        first_half_total_hours = total_hours["hours_worked__sum"]
 
-                total_hours_A = payroll_data.filter(
-                    employee=employee_id, job_group=GROUP_A
-                ).aggregate(Sum("hours_worked"))
+        if employee.job_group == GROUP_A and first_half_total_hours != None:
+            amountPaid = first_half_total_hours * 20
+            employee_stats["amountPaid"] = f"${amountPaid}"
+            return employee_stats
 
-                if total_hours_A["hours_worked__sum"] != None:
-                    amountPaid = total_hours_A["hours_worked__sum"] * 20
-                    employee_stats["amountPaid"] = f"${amountPaid}"
-                    employee_stats["payPeriod"] = payPeriod
-                    employeeReports.append(employee_stats)
-
-            else:
-
-                total_hours_B = payroll_data.filter(
-                    employee=employee_id, job_group=GROUP_B
-                ).aggregate(Sum("hours_worked"))
-
-                total_hours_B = payroll_data.filter(
-                    employee=employee_id, job_group=GROUP_B
-                ).aggregate(Sum("hours_worked"))
-
-                if total_hours_B["hours_worked__sum"] != None:
-                    amountPaid = total_hours_B["hours_worked__sum"] * 30
-                    employee_stats["amountPaid"] = f"${amountPaid}"
-                    employee_stats["payPeriod"] = payPeriod
-                    employeeReports.append(employee_stats)
-
-        return employeeReports
-
+        elif employee.job_group == GROUP_B and first_half_total_hours != None:
+            amountPaid = first_half_total_hours * 30
+            employee_stats["amountPaid"] = f"${amountPaid}"
+            return employee_stats
+        
     def file_checker(self, file_name, data):
         result = False
         try:
