@@ -78,10 +78,12 @@ WSGI_APPLICATION = "waveAssignment.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "payroll_report",
+        "NAME": "postgres",
         "USER": "postgres",
         "PASSWORD": "password123",
-        "HOST": "localhost",
+        "HOST": "db",
+        "PORT": 5432
+
     }
 }
 
