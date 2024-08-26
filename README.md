@@ -158,7 +158,7 @@ Evaluation of your submission will be based on the following criteria.
 #### Instructions on how to build/run your application
 
 In order to run the application, kindly follow the steps below:
-1. run `docker compose up --build` to build the image.
+1. run `docker build .` to build the image.
 2. run `docker-compose run web python manage.py migrate` to setup all the migrations.
 3. run `docker-compose up` to run the container.
 
