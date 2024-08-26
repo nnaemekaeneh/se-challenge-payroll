@@ -21,5 +21,5 @@ from reports.urls import urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("payroll-report", include(urlpatterns)),
+    path("payroll-report/", include(urlpatterns)),
 ]
