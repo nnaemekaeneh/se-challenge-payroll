@@ -165,9 +165,9 @@ In order to run the application, kindly follow the steps below:
 There is only one valid url path which is :
 `http://127.0.0.1:3000/payroll-report/`
 
-- Once you to load the page, upload a valid csv file which meets the criteria as mention in the project description.
-- If the file loads successfully, a successfully message will display, however if the file is not valid and error message will be displayed.
-- Once you successfully upload a file, on refresh a JSON object `payrollReport` is return and also printed in the terminal.
+- Once you load the page, upload a valid csv file which meets the criteria as mention in the project description.
+- If the file loads successfully, a successful message will displayed, however if the file is not valid an error message will be displayed.
+- Once you successfully upload a file, on refresh a JSON object `payrollReport` is returned and also printed in the terminal.
 
 
 #### How did you test that your implementation was correct?
@@ -183,13 +183,13 @@ To check if my test passed kindly run `docker-compose run web python manage.py t
 
 #### If this application was destined for a production environment, what would you add or change?
 
-- I used a better framework such as Material UI React Framework work for the frontend. I will build and design it such way a splendid way it will easy to use, navigate and adjust depending on the user screen size.
-- After uploading a file, i would add a better message display which pops up and disappears after a couple of seconds which its either a success or an error message.
-- I will ensure there is a better flow after submitting a file. Either to redirect to another page or re-render the page showing the actual payrollReport.
-- I will present the payroll Report with a table, graph or chart and make the information have more meaning to the user.
-- I will use the User model and create a login page so that users can have access to upload or view report.
-- I will add permission, login access and authentication so that it will not be anybody that have access to uploaded data to our databases or view the `payrollReport` data
-- Also write more test to ensure the system is tested properly
+- I will use a better framework such as `Material UI React Framework` for the frontend. I will build and design it such way a splendid way it will quite presentable, easy to use, navigate and adjust depending on the user screen size.
+- After uploading a file, i would add a better message display which only pops up and disappears after a couple of seconds with its either a success or an error message.
+- I will ensure there is a better flow after submitting a file. Either to redirect to another page or re-render the page showing the actual payrollReport result.
+- I will present the payroll Report with a table, graph or chart and make the information have more meaning to the user than just the raw data.
+- I will use the User model, work on a couple of user functions and create a login page so that only users who have access can upload files or view report.
+- I will add permission, login access and authentication so that only users with access can reach the endpoint.
+- Also write more test to ensure the system is thoroughly tested.
 - Ensure that certain information especially in the setting.py are configured to be restricted.
 
 
@@ -198,3 +198,4 @@ To check if my test passed kindly run `docker-compose run web python manage.py t
 - Ugly message display - when a file is uploaded or rejected.
 - Poor flow after uploading csv file.
 - No login access platform which means anyone can upload file or view the report.
+- I could improve ORM querying of data

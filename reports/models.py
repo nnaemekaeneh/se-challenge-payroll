@@ -1,6 +1,7 @@
 from django.db import models
 
 
+# Employee Model
 class EmployeePayReport(models.Model):
     employee = models.SmallIntegerField("Employee ID", null=False, blank=False)
     report_id = models.SmallIntegerField("Report ID", null=False, blank=False)
