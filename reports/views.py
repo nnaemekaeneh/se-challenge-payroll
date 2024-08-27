@@ -38,7 +38,7 @@ class PayrollReport(BaseView):
 
         print(data)
 
-        return Response()
+        return Response(data=data)
 
     def post(self, request, *args, **kwargs):
         GET = request.data
